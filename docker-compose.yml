@@ -48,59 +48,10 @@ services:
     networks:
       - backend_space
   
-  stopreasonsstorage:
-    container_name: stop_reasons_storage_container
-    image: "postgres:16.3"
-    user: 1000:1000  # please check this in your linux config with $(id -u):$(id -g)
-    env_file:
-      - ./config/docker/postgres/docker-env-vars
-    volumes:
-      - ~/local-docker-volumes/pgdbs/stop-reasons-db:/var/lib/postgresql/data/pgdata
-      - ./config/docker/postgres/init-scripts:/docker-entrypoint-initdb.d
-      - /etc/passwd:/etc/passwd:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "stopreasons"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
-    networks:
-      - backend_space
-  
-  stopreasonsserver:
-    container_name: stop_reasons_container
-    image: "pabloandresd/stopping-reasons-webapp:004"
-    env_file:
-      - ./config/docker/StopReasons/docker-env-vars
-    ports:
-      - "81:80"
-    depends_on:
-      brokerserver:
-        condition: service_healthy
-      stopreasonsstorage:
-        condition: service_healthy
-    volumes:
-      - ./config/docker/StopReasons/config.json:/publish/appsettings.json:ro
-    networks:
-      - backend_space
-  
-  availability_connector:
-    image: "broker-consumer:jaime-c8.0-001"
-    volumes:
-      - ./config/docker/BrokerConsumer/availability-settings.json:/publish/appsettings.json:ro
-      - ./docs/example-of-device-info-file.csv:/var/device-metrics-processor/device-info.csv:ro
-    depends_on:
-      brokerserver:
-        condition: service_healthy
-      timeseriesserver:
-        condition: service_healthy
-    networks:
-      - backend_space
-
-  quality_connector:
+  Energy_connector:
     image: "pabloandresd/broker-consumer:002"
     volumes:
-      - ./config/docker/BrokerConsumer/quality-settings.json:/publish/appsettings.json:ro
+      - ./config/docker/BrokerConsumer/energy-connector-settings.json:/publish/appsettings.json:ro
       - ./docs/example-of-device-info-file.csv:/var/device-metrics-processor/device-info.csv:ro
     depends_on:
       brokerserver:
