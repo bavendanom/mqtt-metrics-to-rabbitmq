@@ -10,12 +10,12 @@ services:
       - ./config/rabbitmq/definitions.json:/etc/rabbitmq/conf.d/definitions.json:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 30s
+      interval: 120s
       timeout: 10s
       retries: 5
     ports:
       - "1883:1883"
-      - "127.0.0.1:8080:15672"
+      - "127.0.0.1:8081:15672"
     networks:
       - backend_space
 
@@ -48,7 +48,7 @@ services:
     networks:
       - backend_space
   
-  Energy_connector:
+  energy_connector:
     image: "pabloandresd/broker-consumer:002"
     volumes:
       - ./config/docker/BrokerConsumer/energy-connector-settings.json:/publish/appsettings.json:ro
@@ -57,7 +57,7 @@ services:
       brokerserver:
         condition: service_healthy
       timeseriesserver:
-        condition: service_healthy
+        condition: service_started
     networks:
       - backend_space
 
